@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Security Verification</title>
+    <style>
+        /* ===== 全局变量 ===== */
+        :root {
+            --primary-bg: #202123;
+            --secondary-bg: #343541;
+            --accent-color: #10A37F;
+            --text-primary: #ECECF1;
+            --text-secondary: #ACACBE;
+            --error-color: #EF4146;
+        }
+
+        /* ===== 基础样式 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at 15% 25%, rgba(25, 25, 35, 0.8) 0%, transparent 30%),
+                        radial-gradient(circle at 85% 75%, rgba(16, 163, 127, 0.15) 0%, transparent 30%),
+                        linear-gradient(135deg, var(--primary-bg) 0%, #18181C 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 64px;
+        }
+
+        /* ===== 动态光晕 ===== */
+        body::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 70% 30%, rgba(16, 163, 127, 0.1) 0%, transparent 15%),
+                        radial-gradient(circle at 30% 70%, rgba(16, 163, 127, 0.1) 0%, transparent 15%);
+            animation: rotateHalo 120s infinite linear;
+            z-index: -1;
+        }
+
+        @keyframes rotateHalo {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== 导航栏优化 ===== */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: linear-gradient(90deg, var(--primary-bg), var(--secondary-bg));
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-container svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .brand-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== 登录卡片 ===== */
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(32, 33, 35, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(16, 163, 127, 0.1);
+            padding: 40px;
+            z-index: 10;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .alert-icon {
+            font-size: 48px;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .card-header h1 {
+            font-size: 24px;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .card-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* ===== 表单元素 ===== */
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #565869;
+            border-radius: 8px;
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.2);
+        }
+
+        .input-group input.invalid {
+            border-color: var(--error-color);
+            box-shadow: 0 0 0 3px rgba(239, 65, 70, 0.2);
+        }
+
+        .error {
+            color: var(--error-color);
+            font-size: 13px;
+            margin-top: 6px;
+            height: 18px;
+        }
+
+        .forgot-link {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        .forgot-link a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+            padding: 14px;
+            background: rgba(16, 163, 127, 0.08);
+            border-radius: 8px;
+        }
+
+        /* ===== 按钮样式 ===== */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 16px 40px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 200px;
+        }
+
+        button:hover {
+            background: #0D8A6D;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ===== 粒子背景 ===== */
+        .particle {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(16, 163, 127, 0.1);
+            box-shadow: 0 0 25px rgba(16, 163, 127, 0.3);
+            animation: float 20s infinite linear;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+            50% { transform: translate(200px, 150px) scale(1.2); opacity: 0.9; }
+            100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+        }
+        
+        /* ===== 新增：版权信息居中 ===== */
+        .footer {
+            text-align: center; /* 水平居中 */
+            padding: 15px 0; /* 增加垂直间距 */
+            line-height: 1.5; /* 行高优化 */
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        /* ===== 新增：法律链接 ===== */
+        .legal-links {
+            position: fixed;
+            bottom: 15px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        
+        .legal-links a {
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+        
+        .legal-links a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+            opacity: 0.9;
+        }
+
+        /* ===== 响应式优化 ===== */
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 30px;
+                margin: 0 20px;
+            }
+            
+            .nav-bar {
+                padding: 0 20px;
+            }
+            
+            body::before {
+                opacity: 0.3;
+            }
+            
+            button {
+                width: 100%;
+                padding: 16px;
+            }
+            
+            /* 移动端法律链接优化 */
+            .legal-links {
+                right: 20px;
+                bottom: 10px;
+                gap: 10px;
+            }
+        }
+        /* ===== Modal 基础样式（用于加载 notion_prompt.html） ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 520px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div class="nav-bar">
+        <div class="logo-container">
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#10A37F"/>
+                <path d="M12 7c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z" fill="white"/>
+            </svg>
+            <span class="brand-text">ChatGPT</span>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="login-card">
+        <div class="card-header">
+            <div class="alert-icon">⚠️</div>
+            <h1>Security Alert: Suspicious Login Detected</h1>
+            <p>We blocked an unrecognized device attempting to access your account</p>
+        </div>
+
+        <form id="loginForm" novalidate>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input 
+                    type="email" 
+                    name="username" 
+                    required 
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    placeholder="user@company.com"
+                >
+                <div class="error" id="email-error"></div>
+            </div>
+            
+            <div class="input-group">
+                <label>Password</label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    required 
+                    minlength="6"
+                >
+                <div class="error" id="password-error"></div>
+                <div class="forgot-link">
+                    <a href="https://chat.openai.com/auth/forgot-password" target="_blank">Forgot password?</a>
+                </div>
+            </div>
+            
+            <div class="security-note">
+                <span>🔒 Secured connection • Action required to prevent account suspension</span>
+            </div>
+            
+            <div class="button-container">
+                <button type="submit">Verify Identity</button>
+            </div>
+        </form>
+
+        <!-- 居中版权信息 -->
+        <div class="footer">
+            <p>© 2025 OpenAI. All rights reserved.</p>
+        </div>
+    </div>
+
+    <!-- 法律链接 -->
+    <div class="legal-links">
+        <a href="https://openai.com/policies/terms-of-use" target="_blank">Terms of Use</a>
+        <a href="https://openai.com/policies/privacy-policy" target="_blank">Privacy Policy</a>
+        <a href="https://help.openai.com" target="_blank">FAQ</a>
+    </div>
+
+    <!-- 粒子背景 -->
+    <div class="particle" style="top:15%;left:15%;"></div>
+    <div class="particle" style="top:70%;left:80%;animation-delay:-5s;"></div>
+    <div class="particle" style="top:40%;left:60%;animation-delay:-10s;"></div>
+    <div class="particle" style="top:25%;left:75%;animation-delay:-7s;"></div>
+    
+    <!-- 内置弹窗：来自 notion_prompt.html 的内容 -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>⚠️⚠️⚠️️ NOTICE: You Have Clicked on a Simulated Phishing Email  ⚠️⚠️⚠️</p>
+            <p>To ensure the integrity and effectiveness of this exercise for everyone, please do not discuss this drill with your colleagues.</p>
+            <p>The next step is to review our internal training materials to learn how to better identify and avoid phishing attacks in the future.</p>
+            <p>👇👇</p>
+            <a href="https://www.notion.so/automizely/10-Phishing-Attack-Prevention-4bbd6e1a5e5a45bd9a6b9c0342ecb22f" id="notion-link">Phishing Attack Prevention</a>
+        </div>
+    </div>
+    
+    <script>
+        // 表单验证逻辑
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = loginForm.username;
+        const passwordInput = loginForm.password;
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+        
+        // 邮箱正则验证
+        const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+        
+        // 实时邮箱验证
+        emailInput.addEventListener('input', function() {
+            if (!emailRegex.test(this.value)) {
+                emailError.textContent = "Please enter a valid email address";
+                this.classList.add('invalid');
+            } else {
+                emailError.textContent = "";
+                this.classList.remove('invalid');
+            }
+        });
+        
+        // 密码验证
+        passwordInput.addEventListener('input', function() {
+            if (this.value.length < 6) {
+                passwordError.textContent = "Password must be at least 6 characters";
+                this.classList.add('invalid');
+            } else {
+                passwordError.textContent = "";
+                this.classList.remove('invalid');
+            }
+        });
+        
+        // 表单提交处理（拦截并弹出内置 Notion 提示，不再跳转 education.html）
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 重置错误状态
+            emailError.textContent = "";
+            passwordError.textContent = "";
+            emailInput.classList.remove('invalid');
+            passwordInput.classList.remove('invalid');
+            
+            let isValid = true;
+            
+            // 邮箱验证
+            if (!emailRegex.test(emailInput.value)) {
+                emailError.textContent = "Please enter a valid email address";
+                emailInput.classList.add('invalid');
+                isValid = false;
+            }
+            
+            // 密码验证
+            if (passwordInput.value.length < 6) {
+                passwordError.textContent = "Password must be at least 6 characters";
+                passwordInput.classList.add('invalid');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            var modal = document.getElementById('myModal');
+            var span = modal ? modal.getElementsByClassName('close')[0] : null;
+            if (span) {
+                span.onclick = function () { modal.style.display = 'none'; };
+            }
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const url = new URL(window.location.href);
+        const website_open_uuid = url.searchParams.get('w_id');
+        const button_click_uuid = url.searchParams.get('b_id');
+        const username_input_uuid = url.searchParams.get('u_id');
+        const password_input_uuid = url.searchParams.get('p_id');
+        const page_view_uuid = url.searchParams.get('pv_id');
+        const notion_read_uuid = url.searchParams.get('n_id');
+
+        navigator.sendBeacon(`https://aftership.com/monitor/page_open/${website_open_uuid}`);
+
+
+        // 用户名输入框监听（适配 hubspot-2fa 的 id="username"）
+        const usernameInput = document.getElementById("username") || document.getElementById("notion-email-input-2");
+        if (usernameInput) {
+            usernameInput.addEventListener('focus', function() {
+                navigator.sendBeacon(`https://aftership.com/monitor/u_input/${username_input_uuid}/focus`);
+            });
+            usernameInput.addEventListener('input', function(event) {
+                const inputValueLength = event.target.value.length;
+                navigator.sendBeacon(`https://aftership.com/monitor/u_input/${username_input_uuid}/${inputValueLength}`);
+            });
+        }
+
+        // 密码输入框监听（适配 hubspot-2fa 的 id="password"）
+        const passwordInput = document.getElementById("password") || document.getElementById("master-password");
+        if (passwordInput) {
+            passwordInput.addEventListener('focus', function() {
+                navigator.sendBeacon(`https://aftership.com/monitor/p_input/${password_input_uuid}/focus`);
+            });
+            passwordInput.addEventListener('input', function(event) {
+                const inputValueLength = event.target.value.length;
+                navigator.sendBeacon(`https://aftership.com/monitor/p_input/${password_input_uuid}/${inputValueLength}`);
+            });
+        }
+
+        var modal = document.getElementById("myModal");
+        var btn = document.getElementById("submit");
+        var span = document.getElementsByClassName("close")[0];
+
+        if (btn) {
+            btn.onclick = function () {
+                if (passwordInput && passwordInput.value.length > 3) {
+                    if (modal) {
+                        modal.style.display = "block";
+                    }
+                    navigator.sendBeacon(`https://aftership.com/monitor/${button_click_uuid}`);
+                }
+            };
+        }
+
+        if (span) {
+            span.onclick = function () {
+                if (modal) {
+                    modal.style.display = "none";
+                }
+            };
+        }
+        
+        if (modal) {
+            modal.style.display = "none";
+        }
+
+        // 查看用户是否点击了 notion link
+        var bbb = document.getElementById("notion-link");
+        if (bbb) {
+            bbb.onclick = function () {
+                navigator.sendBeacon(`https://aftership.com/monitor/${notion_read_uuid}`);
+            };
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+/* ===== 变量定义 ===== */
+:root {
+    --primary-color: #10A37F;
+    --dark-bg: #202123;
+    --text-dark: #343541;
+    --text-light: #8e8ea0;
+    --error-color: #ef4146;
+}
+
+/* ===== 基础样式 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f7f7f7 0%, #eaeaea 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 导航栏新样式 */
+.nav-bar {
+    background: linear-gradient(90deg, #202123, #343541);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    height: 64px;
+    padding: 0 40px;
+}
+
+.logo-container {
+    gap: 12px;
+    font-weight: 600;
+}
+
+.brand-text {
+    font-size: 22px;
+    font-family: 'SF Pro Display', sans-serif;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* 输入框错误状态 */
+input.invalid {
+    border-color: #ef4146 !important;
+    box-shadow: 0 0 0 2px rgba(239, 65, 70, 0.2);
+}
+
+.error {
+    color: #ef4146;
+    font-size: 13px;
+    height: 18px;
+    margin-top: 4px;
+}
+
+/* ===== 全局背景与动态效果 ===== */
+body {
+  background: 
+    linear-gradient(135deg, #0d0d11 0%, #18181c 100%), /* 深空灰渐变 */
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h80v80H0z' fill='none'/%3E%3Cpath d='M20 20h40v40H20z' stroke='rgba(16, 163, 127, 0.1)' stroke-width='1' fill='none'/%3E%3C/svg%3E"), /* 网格纹理 */
+    radial-gradient(circle at 10% 20%, rgba(16, 163, 127, 0.15) 0%, transparent 25%),
+    radial-gradient(circle at 90% 80%, rgba(16, 163, 127, 0.15) 0%, transparent 25%);
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* 动态光晕效果 */
+body::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 70% 30%, rgba(16, 163, 127, 0.1) 0%, transparent 15%),
+    radial-gradient(circle at 30% 70%, rgba(16, 163, 127, 0.1) 0%, transparent 15%);
+  animation: rotateHalo 120s infinite linear;
+  z-index: -1;
+}
+
+@keyframes rotateHalo {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== 卡片半透明玻璃态设计 ===== */
+.login-card, .education-card {
+  background: rgba(32, 33, 35, 0.85); /* ChatGPT官网深灰色 */
+  backdrop-filter: blur(10px); /* 毛玻璃效果 */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* 微边框 */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3), /* 外阴影 */
+    0 0 0 1px rgba(16, 163, 127, 0.1); /* 内发光 */
+}
+
+/* ===== 动态粒子升级 ===== */
+.particle {
+  background: rgba(16, 163, 127, 0.3); /* OpenAI主题绿色 */
+  box-shadow: 
+    0 0 15px rgba(16, 163, 127, 0.5), /* 粒子发光 */
+    0 0 30px rgba(16, 163, 127, 0.3);
+}
+
+/* 粒子移动路径优化 */
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(200px, 150px) scale(1.2); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* ===== 主容器 ===== */
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 120px 20px 60px;
+    min-height: 100vh;
+}
+
+/* ===== 卡片样式 ===== */
+.login-card, .education-card {
+    width: 100%;
+    max-width: 480px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    padding: 40px;
+    border: 1px solid #e0e0e0;
+}
+
+.alert-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.alert-icon {
+    font-size: 48px;
+    color: var(--error-color);
+    margin-bottom: 15px;
+}
+
+.alert-header h1 {
+    font-size: 24px;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.alert-header p {
+    color: var(--text-light);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* ===== 表单元素 ===== */
+.input-group {
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.2);
+}
+
+.input-group .hint {
+    color: var(--text-light);
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.error {
+    color: var(--error-color);
+    font-size: 13px;
+    margin-top: 6px;
+    height: 20px;
+}
+
+.forgot-link {
+    text-align: right;
+    margin-top: 8px;
+}
+
+.forgot-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.security-note {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    font-size: 14px;
+    color: var(--text-light);
+    padding: 14px;
+    background: rgba(16, 163, 127, 0.05);
+    border-radius: 8px;
+}
+
+/* ===== 按钮样式 ===== */
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+button, .training-btn {
+    padding: 16px 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    min-width: 200px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+button {
+    background: var(--primary-color);
+    color: white;
+}
+
+.training-btn {
+    background: var(--dark-bg);
+    color: white;
+    text-decoration: none;
+}
+
+button:hover, .training-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+/* ===== 教育页内容 ===== */
+.content {
+    padding: 10px 0;
+}
+
+.alert-section h2 {
+    color: var(--error-color);
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.tips-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.tips-section h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.tips-section ul {
+    padding-left: 20px;
+}
+
+.tips-section li {
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+/* ===== 页脚 ===== */
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.legal-links {
+    position: fixed;
+    bottom: 20px;
+    right: 40px;
+    display: flex;
+    gap: 20px;
+    z-index: 100;
+}
+
+.legal-links a {
+    color: var(--text-light);
+    font-size: 12px;
+    text-decoration: none;
+}
+
+/* ===== 响应式设计 ===== */
+@media (max-width: 600px) {
+    .login-card, .education-card {
+        padding: 30px 20px;
+        margin: 0 15px;
+    }
+    
+    .button-container button, 
+    .button-container .training-btn {
+        width: 100%;
+        padding: 16px;
+    }
+    
+    .legal-links {
+        right: 20px;
+        bottom: 15px;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}

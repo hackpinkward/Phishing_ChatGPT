@@ -1,0 +1,8 @@
+{
+  "name": "chatgpt-phishing",
+  "version": "1.0.0",
+  "description": "ChatGPT security simulation",
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  }
+}
