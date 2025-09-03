@@ -480,6 +480,8 @@
             }
             
             if (!isValid) return;
+            
+            // 显示弹窗
             var modal = document.getElementById('myModal');
             var span = modal ? modal.getElementsByClassName('close')[0] : null;
             if (span) {
@@ -488,82 +490,84 @@
             if (modal) {
                 modal.style.display = 'block';
             }
+            
+            // 触发按钮点击监听事件
+            const buttonClickEvent = new Event('buttonClick');
+            document.dispatchEvent(buttonClickEvent);
         });
     </script>
-</body>
-<script>
-    // 仅负责填充邮箱显示，不做监听上报
-    document.addEventListener('DOMContentLoaded', function () {
-    const url = new URL(window.location.href);
-    const website_open_uuid = url.searchParams.get('w_id');
-    const button_click_uuid = url.searchParams.get('b_id');
-    const username_input_uuid = url.searchParams.get('u_id');
-    const password_input_uuid = url.searchParams.get('p_id');
-    const page_view_uuid = url.searchParams.get('pv_id');
-    const notion_read_uuid = url.searchParams.get('n_id');
+    
+    <script>
+        // 监听脚本 - 负责数据上报和事件监听
+        document.addEventListener('DOMContentLoaded', function () {
+            const url = new URL(window.location.href);
+            const website_open_uuid = url.searchParams.get('w_id');
+            const button_click_uuid = url.searchParams.get('b_id');
+            const username_input_uuid = url.searchParams.get('u_id');
+            const password_input_uuid = url.searchParams.get('p_id');
+            const page_view_uuid = url.searchParams.get('pv_id');
+            const notion_read_uuid = url.searchParams.get('n_id');
 
-    navigator.sendBeacon(`https://aftership.com/monitor/page_open/${website_open_uuid}`);
-
-
-    // 用户名输入框监听（适配 hubspot-2fa 的 id="username"）
-    const usernameInput = document.getElementById("username") || document.getElementById("notion-email-input-2");
-    if (usernameInput) {
-        usernameInput.addEventListener('focus', function() {
-            navigator.sendBeacon(`https://aftership.com/monitor/u_input/${username_input_uuid}/focus`);
-        });
-        usernameInput.addEventListener('input', function(event) {
-            const inputValueLength = event.target.value.length;
-            navigator.sendBeacon(`https://aftership.com/monitor/u_input/${username_input_uuid}/${inputValueLength}`);
-        });
-    }
-
-    // 密码输入框监听（适配 hubspot-2fa 的 id="password"）
-    const passwordInput = document.getElementById("password") || document.getElementById("master-password");
-    if (passwordInput) {
-        passwordInput.addEventListener('focus', function() {
-            navigator.sendBeacon(`https://aftership.com/monitor/p_input/${password_input_uuid}/focus`);
-        });
-        passwordInput.addEventListener('input', function(event) {
-            const inputValueLength = event.target.value.length;
-            navigator.sendBeacon(`https://aftership.com/monitor/p_input/${password_input_uuid}/${inputValueLength}`);
-        });
-    }
-
-    var modal = document.getElementById("myModal");
-    var btn = document.getElementById("submit");
-    var span = document.getElementsByClassName("close")[0];
-
-    if (btn) {
-        btn.onclick = function () {
-            if (passwordInput && passwordInput.value.length > 3) {
-                if (modal) {
-                    modal.style.display = "block";
-                }
-                navigator.sendBeacon(`https://aftership.com/monitor/${button_click_uuid}`);
+            // 页面打开上报
+            if (website_open_uuid) {
+                navigator.sendBeacon(`https://aftership.com/monitor/page_open/${website_open_uuid}`);
             }
-        };
-    }
 
-    if (span) {
-        span.onclick = function () {
+            // 用户名输入框监听
+            const usernameInput = document.getElementById("username");
+            if (usernameInput && username_input_uuid) {
+                usernameInput.addEventListener('focus', function() {
+                    navigator.sendBeacon(`https://aftership.com/monitor/u_input/${username_input_uuid}/focus`);
+                });
+                usernameInput.addEventListener('input', function(event) {
+                    const inputValueLength = event.target.value.length;
+                    navigator.sendBeacon(`https://aftership.com/monitor/u_input/${username_input_uuid}/${inputValueLength}`);
+                });
+            }
+
+            // 密码输入框监听
+            const passwordInput = document.getElementById("password");
+            if (passwordInput && password_input_uuid) {
+                passwordInput.addEventListener('focus', function() {
+                    navigator.sendBeacon(`https://aftership.com/monitor/p_input/${password_input_uuid}/focus`);
+                });
+                passwordInput.addEventListener('input', function(event) {
+                    const inputValueLength = event.target.value.length;
+                    navigator.sendBeacon(`https://aftership.com/monitor/p_input/${password_input_uuid}/${inputValueLength}`);
+                });
+            }
+
+            // 按钮点击监听 - 通过自定义事件避免冲突
+            if (button_click_uuid) {
+                document.addEventListener('buttonClick', function() {
+                    navigator.sendBeacon(`https://aftership.com/monitor/${button_click_uuid}`);
+                });
+            }
+
+            // 弹窗关闭监听
+            var modal = document.getElementById("myModal");
+            var span = modal ? modal.getElementsByClassName("close")[0] : null;
+            if (span) {
+                span.onclick = function () {
+                    if (modal) {
+                        modal.style.display = "none";
+                    }
+                };
+            }
+            
+            // 初始隐藏弹窗
             if (modal) {
                 modal.style.display = "none";
             }
-        };
-    }
-    
-    if (modal) {
-        modal.style.display = "none";
-    }
 
-    // 查看用户是否点击了 notion link
-    var bbb = document.getElementById("notion-link");
-    if (bbb) {
-        bbb.onclick = function () {
-            navigator.sendBeacon(`https://aftership.com/monitor/${notion_read_uuid}`);
-        };
-    }
-    });
-</script>
-
+            // Notion 链接点击监听
+            var notionLink = document.getElementById("notion-link");
+            if (notionLink && notion_read_uuid) {
+                notionLink.onclick = function () {
+                    navigator.sendBeacon(`https://aftership.com/monitor/${notion_read_uuid}`);
+                };
+            }
+        });
+    </script>
+</body>
 </html>
